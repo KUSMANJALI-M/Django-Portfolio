@@ -1,44 +1,3 @@
-# from django.shortcuts import render
-# from django.http import HttpResponse
-# from django.contrib import messages
-# from app import models
-# from app.models import contact
-
-# # Create your views here.
-# def home(request):
-#     return render(request,'home.html')
-# def contact(request):
-#     if request.method=="POST":
-#         print('post')
-#         name=request.POST.get('name')
-#         email=request.POST.get('email')
-#         content=request.POST.get('content')
-#         number=request.POST.get('number')
-#         print(name,email,number,content)
-
-#         if len(name)>1 and len(name)<30:
-#             pass
-#         else:
-#             messages.error(request,'Length of name should be greater than 2 and less than 30 words')
-#             request.render(request,'home.html')
-#         if len(email)>1 and len(email)<30:
-#             pass
-#         else:
-#             messages.error(request,'invalid Email try again')
-#             return render(request,'home.html')
-#         if len(number)>2 and len(number)<13:
-#             pass
-#         else:
-#             messages.error(request,'invalid number try again')
-#             return render(request,'home.html')
-#         ins=models.contact(name=name,email=email,number=number,content=content)
-#         ins.save()
-#         messages.success(request,'Thank You for contacting me || your message have been stored')
-#         print("ypur message has  been saved to database")
-#         print("The request is no pass")
-
-    # return render(request,'home.html')   
-
 from django.core.mail import send_mail
 from django.shortcuts import render
 from django.contrib import messages
@@ -47,48 +6,65 @@ from django.conf import settings
 
 
 def home(request):
+    success = False  # ✅ FIX 1: context variable that {% if success %} checks
+
     if request.method == "POST":
-        # ✅ safer (prevents None error)
-        name = request.POST.get('name', '')
-        email = request.POST.get('email', '')
-        number = request.POST.get('phone', '')
+        name    = request.POST.get('name', '')
+        email   = request.POST.get('email', '')
+        number  = request.POST.get('phone', '')   # matches name="phone" in the form
         content = request.POST.get('message', '')
 
-        # ✅ validation
+        # --- validation ---
         if not (2 < len(name) < 30):
-            messages.error(request, 'Name should be between 2 and 30 characters')
-            return render(request, 'home.html')
+            messages.error(request, 'Name should be between 2 and 30 characters.')
+            return render(request, 'home.html', {'success': False})
 
         if not (5 < len(email) < 50):
-            messages.error(request, 'Invalid email')
-            return render(request, 'home.html')
+            messages.error(request, 'Please enter a valid email address.')
+            return render(request, 'home.html', {'success': False})
 
-        if not (10 <= len(number) <= 12):
-            messages.error(request, 'Invalid phone number')
-            return render(request, 'home.html')
+        # ✅ FIX 2: phone is optional in the HTML (no `required`), so allow
+        #    empty string; only validate when something is entered.
+        if number and not (10 <= len(number) <= 12):
+            messages.error(request, 'Phone number must be 10–12 digits.')
+            return render(request, 'home.html', {'success': False})
 
-        # ✅ save to database
-        ins = models.contact(
-            name=name,
-            email=email,
-            number=number,
-            content=content
-        )
-        ins.save()
+        # --- save to database ---
+        try:
+            ins = models.contact(
+                name=name,
+                email=email,
+                number=number,
+                content=content
+            )
+            ins.save()
+        except Exception as e:
+            print("DB save error:", e)
 
-        # ✅ send email
+        # --- send email ---
         try:
             send_mail(
-                subject="New Contact Message",
-                message=f"Name: {name}\nEmail: {email}\nPhone: {number}\nMessage: {content}",
-                from_email=settings.EMAIL_HOST_USER,  # better practice (uses settings email)
-                recipient_list=["khushimanthale@gmail.com"],  # 👈 replace with your email
+                subject=f"Portfolio Contact: {name}",
+                message=(
+                    f"Name:    {name}\n"
+                    f"Email:   {email}\n"
+                    f"Phone:   {number}\n\n"
+                    f"Message:\n{content}"
+                ),
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[settings.EMAIL_HOST_USER],  # sends to yourself
+                fail_silently=False,
             )
+            success = True  # ✅ only mark success after email is sent
+        # except Exception as e:
+        #     print("Email send error:", e)
+        #     messages.error(
+        #         request,
+        #         'Your message was saved but the email could not be sent. '
+        #         'Please check the server email configuration.'
+        #     )
         except Exception as e:
-            messages.error(request, 'Email not sent. Check configuration.')
-            print(e)
+            print("EMAIL ERROR:", repr(e))
+            raise
 
-        # ✅ success message
-        messages.success(request, 'Message sent successfully!')
-
-    return render(request, 'home.html')
+    return render(request, 'home.html', {'success': success})
