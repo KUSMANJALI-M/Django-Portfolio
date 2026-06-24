@@ -296,7 +296,7 @@ body::after {
 /* ========== 5. ABOUT SECTION ========== */
 #about {
     /* FIX: removed large right padding (5rem) that caused horizontal overflow on mobile */
-    padding: 3rem 2rem 5rem 2rem;
+    padding: 1rem 1rem;
     background: rgba(15, 22, 41, 0.5);
 }
 
@@ -460,7 +460,7 @@ body::after {
 /* ========== 7. PROJECTS SECTION ========== */
 /* FIX: .project-container now has display:flex and correct class name used in HTML */
 #projects {
-    padding: 5rem 2rem;
+    padding: 3rem 2rem;
     background: rgba(15, 22, 41, 0.5);
 }
 
@@ -577,7 +577,7 @@ body::after {
 
 /* ========== 8. CONTACT SECTION ========== */
 #contact {
-    padding: 7rem 2rem;
+    padding: 3rem 2rem;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -602,7 +602,7 @@ body::after {
     align-items: center;
 }
 
-/* FIX: Contact form now uses ID #contactform correctly (was class .form before) */
+/* FIX: Contact form now uses ID */
 #contactform {
     width: 100%;
     max-width: 520px;
@@ -689,7 +689,7 @@ body::after {
 /* ========== 9. FOOTER SECTION ========== */
 #footer {
     background: #0a0f1e;
-    padding: 3rem 2rem 2rem;
+    padding: 3rem 2rem ;
     margin-top: 3rem;
 }
 
