@@ -9,11 +9,10 @@ except ImportError:
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-at+or289@$lyve$b)uy3^$(a3ykv9)2=mc!+h49bbpqlnvti4f'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-local-development-key')
+DEBUG = False
 
-DEBUG = True
-
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -83,8 +82,8 @@ EMAIL_HOST         = 'smtp.gmail.com'
 EMAIL_PORT         = 587
 EMAIL_USE_TLS      = True
 
-EMAIL_HOST_USER     = 'khushimanthale@gmail.com'
-EMAIL_HOST_PASSWORD = 'nbdaizxcxwokluxe'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL  = EMAIL_HOST_USER
 
 EMAIL_FAIL_SILENTLY = False
